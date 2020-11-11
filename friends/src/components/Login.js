@@ -1,57 +1,63 @@
-import React from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import { axiosWithAuth } from "../utils/axiosWithAuth";
+import { useHistory } from "react-router";
 
-class Login extends React.Component {
-    state = {
-        credentials: {
-            username: '',
-            password: ''
-        }
+const Login = () => {
+  const history = useHistory();
+  const [form, setForm] = useState({
+    username: "",
+    password: "",
+  });
+
+  const handleChanges = (e) => {
+    const newFormData = {
+      ...form,
+      [e.target.name]: e.target.value,
     };
+    setForm(newFormData);
+  };
 
-    handleChange = event => {
-        this.setState({
-            credentials: {
-                ...this.state.credentials,
-                [event.target.name]: event.target.value
-            }
-        });
-    };
-
-    login = event => {
-        event.preventDefault();
-        axios.post('http://localhost:5000/api/login', this.state.credentials)
-            .then(req => {
-                localStorage.setItem('token', req.data.payload);
-                this.props.history.push('/protected');
-                this.props.setIsLoggedIn(true);
-            })
-            .catch(err => {
-                console.log(err)
-            });
-    };
-
-    render() {
-        return (
-            <div>
-                <form onSubmit={this.login}>
-                    <input 
-                        type='text'
-                        name='username'
-                        value={this.state.credentials.username}
-                        onChange={this.handleChange}
-                    />
-                    <input 
-                        type='password'
-                        name='password'
-                        value={this.state.credentials.password}
-                        onChange={this.handleChange}
-                    />
-                    <button>Log In</button>
-                </form>
-            </div>
-        );
-    }
-}
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axiosWithAuth()
+      .post("/login", form)
+      .then((res) => {
+        console.log(" Login: handleSubmit: res", res);
+        localStorage.setItem("token", res.data.payload);
+        history.push("/friendslist");
+      })
+      .catch((err) => {
+        console.log(" Login: handleSubmit: form", form);
+      });
+  };
+  return (
+    <div>
+      <h2>Please Sign in!</h2>
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="username">
+          username:
+          <input
+            type="text"
+            name="username"
+            placeholder="username"
+            value={form.username}
+            onChange={handleChanges}
+          />
+        </label>
+        <label htmlFor="password">
+          password:
+          <input
+            type="password"
+            name="password"
+            placeholder="password"
+            value={form.password}
+            onChange={handleChanges}
+          />
+        </label>
+        <button>Log in</button>
+      </form>
+    </div>
+  );
+};
 
 export default Login;

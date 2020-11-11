@@ -1,44 +1,21 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
+import React from "react";
+import "./App.css";
+import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
+import Login from "./components/Login";
+import FriendsList from "./components/FriendList";
+import PrivateRoute from "./components/PrivateRoute";
 
-import Login from './components/Login';
-import Friends from './components/Friends';
-
-import PrivateRoute from './components/PrivateRoute';
-
-import { axiosWithAuth } from './utils/axiosWithAuth';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-
-  const logout = () => {
-    axiosWithAuth()
-      .post('/logout')
-      .then(req => {
-        localStorage.removeItem('token');
-        setIsLoggedIn(false)
-      })
-      .catch(err => {
-        console.log(err);
-      })
-  };
-
   return (
     <Router>
       <div className="App">
-        <ul>
-          { (!isLoggedIn) ? (<li> <Link to='/login'>Login</Link></li>) : (<div></div>) }
-          <li>
-            <Link to='#' onClick={logout}>Logout</Link>
-          </li>
-          { (isLoggedIn) ? (<li> <Link to='/protected'>Protected Page</Link></li>) : (<div></div>) }
-        </ul>
-
+        <h1>F.r.i.e.n.d.s</h1>
+        <Link to="/login"> Login </Link>
+        <Link to="/friendslist">Friends</Link>
         <Switch>
-          <PrivateRoute exact path='/protected' component={Friends} />
-          <Route path='/login' render={(props) => {
-            return <Login {...props} setIsLoggedIn={setIsLoggedIn} />
-          }} />
+          <Route exact path="/login" component={Login} />
+          <PrivateRoute exact path="/friendslist" component={FriendsList} />
         </Switch>
       </div>
     </Router>
